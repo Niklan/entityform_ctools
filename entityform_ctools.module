@@ -109,17 +109,16 @@ function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
 /**
  * Creates ctools link form creating new entityform in modal.
  */
-function entityform_ctools_add_link($text, $entityform_name, $alt, $class = '', $query = array()) {
+function entityform_ctools_add_link($text, $entityform_name, $theme = '', $options = array()) {
   _entityform_ctools_include_modal();
   drupal_add_library('system', 'drupal.ajax');
-  return l($text, 'entityform_ctools/nojs/add/' . $entityform_name, array(
+  $default_options = array(
     'html' => TRUE,
     'attributes' => array(
-      'class' => array('use-ajax', 'ctools-use-modal', $class),
-      'title' => $alt
+      'class' => array('use-ajax', 'ctools-use-modal', $theme),
     ),
-    'query' => $query,
-  ));
+  );
+  return l($text, 'entityform_ctools/nojs/add/' . $entityform_name, array_merge_recursive($default_options, $options));
 }
 
 /**
