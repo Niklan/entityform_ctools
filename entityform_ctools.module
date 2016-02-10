@@ -44,13 +44,14 @@ function _entityform_ctools_include_modal() {
     $style = array(
       'default' => array(
         'modalSize' => array(
-          'type' => 'fixed',
-          'width' => 420,
+          // fixed or scale
+          'type' => 'scale',
+          'width' => 'auto',
           'height' => 'auto',
         ),
         'modalOptions' => array(
-          'opacity' => (float) 0.3,
-          'background-color' => 'rgba(62, 71, 87, 0.4)',
+          'opacity' => (float) 0.4,
+          'background-color' => 'rgb(62, 71, 87)',
         ),
         'closeText' => '',
         // @TODO translate
@@ -71,6 +72,7 @@ function _entityform_ctools_include_modal() {
 function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
   // If disabled JavaScript.
   if (!$js) {
+    // @TODO move to entityform submission page.
     drupal_goto('<front>');
   }
 
@@ -84,7 +86,11 @@ function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
     'title' => $entityform_types_objects[$entittyform_name]->label,
     'ajax' => TRUE,
     'build_info' => array(
-      'args' => array(entityform_empty_load($entittyform_name), 'submit', 'embedded'),
+      'args' => array(
+        entityform_empty_load($entittyform_name),
+        'submit',
+        'embedded'
+      ),
     ),
   );
 
@@ -103,7 +109,15 @@ function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
 /**
  * Creates ctools link form creating new entityform in modal.
  */
-function entityform_ctools_add_link($text, $entityform_name, $alt, $class = '') {
+function entityform_ctools_add_link($text, $entityform_name, $alt, $class = '', $query = array()) {
   _entityform_ctools_include_modal();
-  return ctools_modal_text_button($text, 'entityform_ctools/nojs/add/' . $entityform_name, $alt, $class);
+  drupal_add_library('system', 'drupal.ajax');
+  return l($text, 'entityform_ctools/nojs/add/' . $entityform_name, array(
+    'html' => TRUE,
+    'attributes' => array(
+      'class' => array('use-ajax', 'ctools-use-modal', $class),
+      'title' => $alt
+    ),
+    'query' => $query,
+  ));
 }
