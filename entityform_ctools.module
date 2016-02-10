@@ -121,3 +121,15 @@ function entityform_ctools_add_link($text, $entityform_name, $alt, $class = '', 
     'query' => $query,
   ));
 }
+
+/**
+ * Implements hook_form_alter().
+ */
+function entityform_ctools_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form['#entity_type']) && isset($form['#bundle']) && !(arg(0) == 'admin')) {
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+      // Call alter for ajax called entityform.
+      drupal_alter($form['#bundle'] . '_entityform_ctools', $form, $form_state);
+    }
+  }
+}
