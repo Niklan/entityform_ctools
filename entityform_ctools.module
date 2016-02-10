@@ -103,5 +103,6 @@ function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
  * Creates ctools link form creating new entityform in modal.
  */
 function entityform_ctools_add_link($text, $entityform_name, $alt, $class = '') {
+  _entityform_ctools_include_modal();
   return ctools_modal_text_button($text, 'entityform_ctools/nojs/add/' . $entityform_name, $alt, $class);
 }
