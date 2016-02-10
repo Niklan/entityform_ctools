@@ -10,3 +10,98 @@
  * Email: hello@niklan.net
  */
 
+/**
+ * Implements hook_menu().
+ */
+function entityform_ctools_menu() {
+  // @TODO handle to editing existing entityforms in ctools.
+  $items['entityform_ctools/%/add/%'] = array(
+    'title' => 'Entityform Ctools Page',
+    'page callback' => 'entityform_ctools_page_callback',
+    'page arguments' => array(3, 1),
+    // @TODO add callback
+    'access callback' => TRUE,
+    'delivery callback' => 'ajax_deliver',
+    'theme callback' => 'ajax_base_page_theme',
+  );
+
+  return $items;
+}
+
+/**
+ * Include modal libraries.
+ */
+function _entityform_ctools_include_modal() {
+  static $added = FALSE;
+  if ($added == FALSE) {
+    $added = TRUE;
+
+    // Include the CTools tools that we need.
+    ctools_include('modal');
+    ctools_include('ajax');
+    ctools_modal_add_js();
+
+    $style = array(
+      'default' => array(
+        'modalSize' => array(
+          'type' => 'fixed',
+          'width' => 420,
+          'height' => 'auto',
+        ),
+        'modalOptions' => array(
+          'opacity' => (float) 0.3,
+          'background-color' => 'rgba(62, 71, 87, 0.4)',
+        ),
+        'closeText' => '',
+        // @TODO translate
+        'loadingText' => 'Секундочку, форма загружается…',
+        'animation' => 'fadeIn',
+        'animationSpeed' => 'fast',
+      ),
+    );
+
+    drupal_add_js($style, 'setting');
+  }
+}
+
+/**
+ * @param null $js
+ * @return array
+ */
+function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
+  // If disabled JavaScript.
+  if (!$js) {
+    drupal_goto('<front>');
+  }
+
+  ctools_include('entityform.admin', 'entityform', '');
+  ctools_include('modal');
+  ctools_include('ajax');
+
+  $form_state = array(
+    // @TODO change to entityform title.
+    'title' => 'Title',
+    'ajax' => TRUE,
+    'build_info' => array(
+      'args' => array(entityform_empty_load($entittyform_name), 'submit', 'embedded'),
+    ),
+  );
+
+  $commands = ctools_modal_form_wrapper($entittyform_name . '_entityform_edit_form', $form_state);
+
+  if (!empty($form_state['executed'])) {
+    // @TODO add hook for possibility to change commands.
+    $commands = array();
+    $commands[] = ajax_command_html('#messages-wrapper', theme('status_messages'));
+    $commands[] = ctools_modal_command_dismiss();
+  }
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Creates ctools link form creating new entityform in modal.
+ */
+function entityform_ctools_add_link($text, $entityform_name, $alt, $class = '') {
+  return ctools_modal_text_button($text, 'entityform_ctools/nojs/add/' . $entityform_name, $alt, $class);
+}
