@@ -78,9 +78,10 @@ function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
   ctools_include('modal');
   ctools_include('ajax');
 
+  $entityform_types_objects = entityform_get_types();
+
   $form_state = array(
-    // @TODO change to entityform title.
-    'title' => 'Title',
+    'title' => $entityform_types_objects[$entittyform_name]->label,
     'ajax' => TRUE,
     'build_info' => array(
       'args' => array(entityform_empty_load($entittyform_name), 'submit', 'embedded'),
