@@ -1,0 +1,10 @@
+name = Entityform ctools toolkit
+description = A little API for ajaxify Entityforms with ctools.
+core = 7.x
+package = Entityforms
+
+; Later, prehabs.
+;configure = admin/config/content/entityform-ctools
+
+dependencies[] = entityform
+dependencies[] = ctools
