@@ -41,7 +41,7 @@ print entityform_ctools_add_link('Demo 2', 'service_order', 'mytheme', array(
 
 The easiest way to do it by using query. You can pass query data with link generator.
 
-~~~
+~~~php
 print entityform_ctools_add_link('Demo 2', 'service_order', 'mytheme', array(
   'attributes' => array(
     'id' => 'my-id',
@@ -56,7 +56,7 @@ print entityform_ctools_add_link('Demo 2', 'service_order', 'mytheme', array(
 
 Then you must alter form and you can use this value.
 
-~~~
+~~~php
 /**
  * Implements hook_form_FORM_ID_alter().
  */
@@ -70,6 +70,10 @@ function hook_form_FORM_ID_alter(&$form, &$form_state) {
 }
 ~~~
 
+You will get something like this.
+
+![Example 3 image](http://i.imgur.com/TwRmcp8.png)
+
 ## Example 4: hook_entityform_ctools_FORM_ID_executed_commands()
 
 ~~~php
@@ -79,24 +83,3 @@ function hook_entityform_ctools_FORM_ID_executed_commands(&$commands, $form_stat
 }
 
 ~~~
-
-Now implement hook and use this data.
-
-~~~php
-/**
- * Implements hook_FORM_ID_entityform_ctools_alter().
- * @form_id: service_order
- */
-function MODULENAME_service_order_entityform_ctools_alter(&$form, &$form_state) {
-  if (isset($_GET['title']) && isset($_GET['variant'])) {
-    // We set this as default value for field. Result for variant 1 will: 'Node title: Variant 1'.
-    $form['field_service_varaint']['und'][0]['value']['#default_value'] = $_GET['title'] . ': ' . $_GET['variant'];
-    // And, you can disable edit possibility, but user still see this.
-    $form['field_service_varaint']['und'][0]['value']['#attributes'] = array('disabled' => 'disabled');
-  }
-}
-~~~
-
-You will get something like this.
-
-![Example 3 image](http://i.imgur.com/TwRmcp8.png)
