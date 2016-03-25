@@ -69,7 +69,7 @@ function _entityform_ctools_include_modal() {
  * @param null $js
  * @return array
  */
-function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
+function entityform_ctools_page_callback($entityform_name, $js = NULL) {
   // If disabled JavaScript.
   if (!$js) {
     // @TODO move to entityform submission page.
@@ -83,24 +83,24 @@ function entityform_ctools_page_callback($entittyform_name, $js = NULL) {
   $entityform_types_objects = entityform_get_types();
 
   $form_state = array(
-    'title' => $entityform_types_objects[$entittyform_name]->label,
+    'title' => $entityform_types_objects[$entityform_name]->label,
     'ajax' => TRUE,
     'build_info' => array(
       'args' => array(
-        entityform_empty_load($entittyform_name),
+        entityform_empty_load($entityform_name),
         'submit',
         'embedded'
       ),
     ),
   );
 
-  $commands = ctools_modal_form_wrapper($entittyform_name . '_entityform_edit_form', $form_state);
+  $commands = ctools_modal_form_wrapper($entityform_name . '_entityform_edit_form', $form_state);
 
   if (!empty($form_state['executed'])) {
     // @TODO add hook for possibility to change commands.
     $commands = array();
-    $commands[] = ajax_command_html('#messages-wrapper', theme('status_messages'));
-    $commands[] = ctools_modal_command_dismiss();
+    $commands[] = ajax_command_prepend('#modal-content', theme('status_messages'));
+    drupal_alter('entityform_ctools_' . $entityform_name . '_executed_commands', $commands, $form_state);
   }
 
   return array('#type' => 'ajax', '#commands' => $commands);
