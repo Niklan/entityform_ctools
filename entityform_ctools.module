@@ -120,15 +120,3 @@ function entityform_ctools_add_link($text, $entityform_name, $theme = '', $optio
   );
   return l($text, 'entityform_ctools/nojs/add/' . $entityform_name, array_merge_recursive($default_options, $options));
 }
-
-/**
- * Implements hook_form_alter().
- */
-function entityform_ctools_form_alter(&$form, &$form_state, $form_id) {
-  if (isset($form['#entity_type']) && isset($form['#bundle']) && !(arg(0) == 'admin')) {
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-      // Call alter for ajax called entityform.
-      drupal_alter($form['#bundle'] . '_entityform_ctools', $form, $form_state);
-    }
-  }
-}
