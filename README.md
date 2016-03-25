@@ -37,32 +37,47 @@ print entityform_ctools_add_link('Demo 2', 'service_order', 'mytheme', array(
 ));
 ~~~
 
-## Example 3: hook_FORM_ID_entityform_ctools_alter()
+## Example 3: Pass some data to form for using it later.
 
-This hook is familiar with hook_form_FORM_ID_alter(), the main difference, it calls only when form loaded via AJAX. Here
-a little trick why this hook born.
+The easiest way to do it by using query. You can pass query data with link generator.
 
-F.e. you have service page, the service has two variants, and you want to send selected variant with form submission.
-You create field for it, and (f.e.) call it field_service_varaint (text).
+~~~
+print entityform_ctools_add_link('Demo 2', 'service_order', 'mytheme', array(
+  'attributes' => array(
+    'id' => 'my-id',
+    'class' => 'extra-class'
+  ),
+  'query' => array(
+    // Or you can pass Entity ID and then load data.
+    'node_title' => 'Service 1',
+  ),
+));
+~~~
+
+Then you must alter form and you can use this value.
+
+~~~
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function hook_form_FORM_ID_alter(&$form, &$form_state) {
+  $query = drupal_get_query_parameters();
+  if (isset($query['node_title'])) {
+    $form['field_service_name']['und'][0]['value']['#value'] = $query['node_title'];
+  }
+  // Make this field only readable.
+  $form['field_service_name']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+}
+~~~
+
+## Example 4: hook_entityform_ctools_FORM_ID_executed_commands()
 
 ~~~php
-// Get node object for current page.
-$node = menu_get_object();
+function hook_entityform_ctools_FORM_ID_executed_commands(&$commands, $form_state) {
+  // Close modal window after successful submission.
+  $commands[] = ctools_modal_command_dismiss();
+}
 
-// Then create two links.
-print entityform_ctools_add_link('Variant 1', 'service_order', 'mytheme', array(
-  'query' => array(
-    'title' => $node->title,
-    'variant' => 'Variant 1', // we will use it later.
-  )
-));
-
-print entityform_ctools_add_link('Variant 2', 'service_order', 'mytheme', array(
-  'query' => array(
-    'title' => $node->title,
-    'variant' => 'Variant 2', // we will use it later.
-  )
-));
 ~~~
 
 Now implement hook and use this data.
