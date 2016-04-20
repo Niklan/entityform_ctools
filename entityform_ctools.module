@@ -75,9 +75,9 @@ function entityform_ctools_page_callback($entityform_name, $js = NULL) {
   ctools_include('modal');
   ctools_include('ajax');
 
+  $entityform_types_objects = entityform_get_types();
   // If disabled JavaScript.
   if (!$js) {
-    $entityform_types_objects = entityform_get_types();
     $entityform_info = $entityform_types_objects[$entityform_name];
     if (isset($entityform_info->paths['submit']['alias'])) {
       $redirect_path = $entityform_info->paths['submit']['alias'];
@@ -101,14 +101,13 @@ function entityform_ctools_page_callback($entityform_name, $js = NULL) {
   );
 
   $commands = ctools_modal_form_wrapper($entityform_name . '_entityform_edit_form', $form_state);
-
   if (!empty($form_state['executed'])) {
     $commands = array();
     $commands[] = ajax_command_prepend('#modal-content', theme('status_messages'));
-    // hook_entityform_ctools_FORM_ID_executed_commands_alter().
-    drupal_alter('entityform_ctools_' . $entityform_name . '_executed_commands', $commands, $form_state);
   }
 
+  // hook_entityform_ctools_FORM_ID_commands_alter().
+  drupal_alter('entityform_ctools_' . $entityform_name . '_commands', $commands, $form_state);
   return array('#type' => 'ajax', '#commands' => $commands);
 }
 
