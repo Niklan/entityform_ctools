@@ -25,6 +25,14 @@ function entityform_ctools_menu() {
     'theme callback' => 'ajax_base_page_theme',
   );
 
+  $items['entityform_ctools/ajax'] = array(
+    'title' => 'Entityform Ajax Callback',
+    'page callback' => 'entityform_ctools_ajax_callback',
+    'access callback' => TRUE,
+    'delivery callback' => 'ajax_deliver',
+    'theme callback' => 'ajax_base_page_theme',
+  );
+
   return $items;
 }
 
@@ -124,4 +132,63 @@ function entityform_ctools_add_link($text, $entityform_name, $theme = '', $optio
     ),
   );
   return l($text, 'entityform_ctools/nojs/add/' . $entityform_name, array_merge_recursive($default_options, $options));
+}
+
+/**
+ * Callback for ajax submissions of entityform.
+ */
+function entityform_ctools_ajax_callback() {
+  module_load_include('inc', 'entityform', 'entityform.admin');
+  list($form, $form_state) = ajax_get_form();
+  drupal_process_form($form['#form_id'], $form, $form_state);
+  $action_path = 'entityform_ctools/ajax';
+  $form['#action'] = $action_path;
+  $form['actions']['submit']['#ajax'] = array('path' => $action_path);
+  $form['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
+  $output = drupal_render($form);
+
+  $form_html_id = '#' . $form_state['complete form']['#id'];
+
+  $commands = array();
+  if ($messages = theme('status_messages')) {
+    $commands[] = ajax_command_html('#' . $form['#form_id'] . '-messages', $messages);
+  }
+  $commands[] = ajax_command_replace($form_html_id, $output);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Get entityform form with ajax submit handler.
+ */
+function entityform_ctools_get_ajax_form($entityform_name) {
+  module_load_include('inc', 'entityform', 'entityform.admin');
+  drupal_add_library('system', 'jquery.form');
+  drupal_add_library('system', 'drupal.form');
+  drupal_add_library('system', 'drupal.ajax');
+  drupal_add_library('system', 'drupal.progress');
+
+  $action_path = 'entityform_ctools/ajax';
+  $form_id = $entityform_name . '_entityform_edit_form';
+  $form_state = array(
+    'ajax' => TRUE,
+    'inline_ajax' => TRUE,
+    'rebuild' => FALSE,
+    'cache' => TRUE,
+    'build_info' => array(
+      'args' => array(
+        entityform_empty_load($entityform_name),
+        'submit',
+        'embedded'
+      ),
+    ),
+  );
+
+  $output = drupal_build_form($form_id, $form_state);
+  $output['#action'] = $action_path;
+  $output['actions']['submit']['#ajax'] = array('path' => $action_path);
+  $output['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
+  $messages = '<div id="' . $form_id . '-messages"></div>';
+  $output = drupal_render($output);
+  return $messages . $output;
 }
