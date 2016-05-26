@@ -95,9 +95,14 @@ function entityform_ctools_page_callback($entityform_name, $js = NULL) {
     }
     drupal_goto($redirect_path, array(), 301);
   }
+  
+  $title = $entityform_types_objects[$entityform_name]->label;
+  if (module_exists('entityform_i18n')) {
+    $title = $entityform_types_objects[$entityform_name]->getTranslation('label');
+  }
 
   $form_state = array(
-    'title' => $entityform_types_objects[$entityform_name]->label,
+    'title' => $title,
     'ajax' => TRUE,
     'build_info' => array(
       'args' => array(
