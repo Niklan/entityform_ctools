@@ -128,7 +128,7 @@ function entityform_ctools_add_link($text, $entityform_name, $theme = '', $optio
   $default_options = array(
     'html' => TRUE,
     'attributes' => array(
-      'class' => array('ctools-use-modal', $theme),
+      'class' => array('ctools-use-modal', 'ctools-modal-' . $theme),
     ),
   );
   return l($text, 'entityform_ctools/nojs/add/' . $entityform_name, array_merge_recursive($default_options, $options));

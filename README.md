@@ -25,11 +25,12 @@ print entityform_ctools_add_link('Demo 1', 'service_order');
 
 // Link with 'mytheme' theme for CTools modal. You must define this theme before using it, or will be loaded default
 // CTools theme.
-print entityform_ctools_add_link('Demo 2', 'service_order', 'ctools-modal-default');
+// default will be rendered as - ctools-modal-default.
+print entityform_ctools_add_link('Demo 2', 'service_order', 'default');
 
 // More complex example with adding extra attributes. $options array will be send to l() function. So read documentation
 // if you not familiar with it https://api.drupal.org/api/drupal/includes%21common.inc/function/l/7
-print entityform_ctools_add_link('Demo 2', 'service_order', 'ctools-modal-default', array(
+print entityform_ctools_add_link('Demo 2', 'service_order', 'default', array(
   'attributes' => array(
     'id' => 'my-id',
     'class' => 'extra-class'
@@ -42,7 +43,7 @@ print entityform_ctools_add_link('Demo 2', 'service_order', 'ctools-modal-defaul
 The easiest way to do it by using query. You can pass query data with link generator.
 
 ~~~php
-print entityform_ctools_add_link('Demo 2', 'service_order', 'ctools-modal-default', array(
+print entityform_ctools_add_link('Demo 2', 'service_order', 'default', array(
   'attributes' => array(
     'id' => 'my-id',
     'class' => 'extra-class'
@@ -81,5 +82,4 @@ function hook_entityform_ctools_FORM_ID_executed_commands(&$commands, $form_stat
   // Close modal window after successful submission.
   $commands[] = ctools_modal_command_dismiss();
 }
-
 ~~~
