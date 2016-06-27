@@ -50,7 +50,7 @@ function _entityform_ctools_include_modal() {
     ctools_modal_add_js();
 
     $style = array(
-      'default' => array(
+      'entityform' => array(
         'modalSize' => array(
           // fixed or scale
           'type' => 'fixed',
