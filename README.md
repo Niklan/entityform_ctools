@@ -26,7 +26,7 @@ print entityform_ctools_add_link('Demo 1', 'service_order');
 // Link with 'mytheme' theme for CTools modal. You must define this theme before using it, or will be loaded default
 // CTools theme.
 // default will be rendered as - ctools-modal-default.
-print entityform_ctools_add_link('Demo 2', 'service_order', 'default');
+print entityform_ctools_add_link('Demo 2', 'service_order', 'entityform');
 
 // More complex example with adding extra attributes. $options array will be send to l() function. So read documentation
 // if you not familiar with it https://api.drupal.org/api/drupal/includes%21common.inc/function/l/7
@@ -43,7 +43,7 @@ print entityform_ctools_add_link('Demo 2', 'service_order', 'default', array(
 The easiest way to do it by using query. You can pass query data with link generator.
 
 ~~~php
-print entityform_ctools_add_link('Demo 2', 'service_order', 'default', array(
+print entityform_ctools_add_link('Demo 2', 'service_order', 'entityform', array(
   'attributes' => array(
     'id' => 'my-id',
     'class' => 'extra-class'
