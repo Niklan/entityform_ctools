@@ -49,28 +49,44 @@ function _entityform_ctools_include_modal() {
     ctools_include('ajax');
     ctools_modal_add_js();
 
+    // @see http://cgit.drupalcode.org/ctools/tree/help/modal.html
     $style = array(
       'entityform' => array(
         'modalSize' => array(
           // fixed or scale
           'type' => 'fixed',
-          'width' => 'auto',
+          // Npx or 0-1 as percentage, where 0.1 - 10%
+          'width' => '320px',
+          // Npx or 0-1 as percentage.
           'height' => 'auto',
+          'addWidth' => '0',
+          'addHeight' => '0',
+          'contentRight' => '25',
+          'contentBottom' => '0',
         ),
-        'modalOptions' => array(
-          'opacity' => 1,
-          'background-color' => 'rgb(62, 71, 87)',
-        ),
-        'closeText' => '❌',
+        'modalTheme' => 'entityform_ctools_modal',
+        'throbberTheme' => 'entityform_ctools_throbber',
+        'modalClass' => 'entityform',
+        // This is css array will apply automatically.
+        'modalOptions' => array(),
+        // show, fadeIn or slideDown
+        'animation' => 'show',
+        // slow, medium or fast
+        'animationSpeed' => 'fast',
+        'closeText' => 'Закрыть ❌',
         'closeImage' => '',
         // @TODO translate
         'loadingText' => 'Секундочку, форма загружается…',
-        'animation' => 'fadeIn',
-        'animationSpeed' => 'fast',
+        'throbber' => theme('image', array(
+          'path' => ctools_image_path('throbber.gif', 'entityform_ctools'),
+          'alt' => t('Loading...'),
+          'title' => t('Loading')
+        )),
       ),
     );
 
     drupal_add_js($style, 'setting');
+    ctools_add_js('entityform-modal', 'entityform_ctools');
   }
 }
 
@@ -95,7 +111,7 @@ function entityform_ctools_page_callback($entityform_name, $js = NULL) {
     }
     drupal_goto($redirect_path, array(), 301);
   }
-  
+
   $title = $entityform_types_objects[$entityform_name]->label;
   if (module_exists('entityform_i18n')) {
     $title = $entityform_types_objects[$entityform_name]->getTranslation('label');
