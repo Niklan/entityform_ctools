@@ -30,7 +30,7 @@ print entityform_ctools_add_link('Demo 2', 'service_order', 'entityform');
 
 // More complex example with adding extra attributes. $options array will be send to l() function. So read documentation
 // if you not familiar with it https://api.drupal.org/api/drupal/includes%21common.inc/function/l/7
-print entityform_ctools_add_link('Demo 2', 'service_order', 'default', array(
+print entityform_ctools_add_link('Demo 2', 'service_order', 'entityform', array(
   'attributes' => array(
     'id' => 'my-id',
     'class' => 'extra-class'
@@ -77,9 +77,28 @@ You will get something like this.
 
 ## Example 4: hook_entityform_ctools_FORM_ID_executed_commands()
 
+You can alter AJAX commands for extra staff.
+
 ~~~php
 function hook_entityform_ctools_FORM_ID_executed_commands(&$commands, $form_state) {
   // Close modal window after successful submission.
   $commands[] = ctools_modal_command_dismiss();
 }
 ~~~
+
+## Example 5: get entityform with AJAX submit.
+
+Looking for `drupal_get_form`, but for entityform and AJAX submit? Easy peasy.
+
+~~~php
+$form = entityform_ctools_get_ajax_form('ENTITYFORM_NAME');
+print drupal_render($form);
+~~~
+
+## Example 6: AJAX form submission on form pages.
+
+Want to make form submission via AJAX on default form page, or, maybe, you print form in some places and want to make them AJAX? No the problem.
+
+Go to entityform settings, now you will see new extra tabs called 'AJAX', next is like block visibility settings, you just enter paths whatever you want to make form AJAX submit.
+
+![Example 6 image](http://i.imgur.com/wzfQ3lW.png)

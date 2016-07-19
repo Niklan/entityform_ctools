@@ -10,6 +10,12 @@
  * Email: hello@niklan.net
  */
 
+define('ENTITYFORM_CTOOLS_AJAX_DISABLED', -1);
+define('ENTITYFORM_CTOOLS_AJAX_NOTLISTED', 0);
+define('ENTITYFORM_CTOOLS_AJAX_LISTED', 1);
+define('ENTITYFORM_CTOOLS_AJAX_OWN', 2);
+
+
 /**
  * Implements hook_menu().
  */
@@ -161,21 +167,15 @@ function entityform_ctools_add_link($text, $entityform_name, $theme = '', $optio
 function entityform_ctools_ajax_callback() {
   module_load_include('inc', 'entityform', 'entityform.admin');
   list($form, $form_state) = ajax_get_form();
+  array_unshift($form['#after_build'], 'entityform_ctools_form_entityform_edit_form_after_build');
   drupal_process_form($form['#form_id'], $form, $form_state);
-  $action_path = 'entityform_ctools/ajax';
-  $form['#action'] = $action_path;
-  $form['actions']['submit']['#ajax'] = array('path' => $action_path);
-  $form['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
   $output = drupal_render($form);
-
   $form_html_id = '#' . $form_state['complete form']['#id'];
-
   $commands = array();
   if ($messages = theme('status_messages')) {
     $commands[] = ajax_command_html('#' . $form['#form_id'] . '-messages', $messages);
   }
   $commands[] = ajax_command_replace($form_html_id, $output);
-
   return array('#type' => 'ajax', '#commands' => $commands);
 }
 
@@ -189,7 +189,6 @@ function entityform_ctools_get_ajax_form($entityform_name) {
   drupal_add_library('system', 'drupal.ajax');
   drupal_add_library('system', 'drupal.progress');
 
-  $action_path = 'entityform_ctools/ajax';
   $form_id = $entityform_name . '_entityform_edit_form';
   $form_state = array(
     'ajax' => TRUE,
@@ -205,11 +204,174 @@ function entityform_ctools_get_ajax_form($entityform_name) {
     ),
   );
 
-  $output = drupal_build_form($form_id, $form_state);
-  $output['#action'] = $action_path;
-  $output['actions']['submit']['#ajax'] = array('path' => $action_path);
-  $output['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
+  $form = drupal_build_form($form_id, $form_state);
+  $action_path = 'entityform_ctools/ajax';
+  $form['#action'] = $action_path;
+  $form['actions']['submit']['#ajax'] = array('path' => $action_path);
+  $form['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
+  $form_id = $entityform_name . '_entityform_edit_form';
   $messages = '<div id="' . $form_id . '-messages"></div>';
-  $output = drupal_render($output);
-  return $messages . $output;
+  $form['#prefix'] = $messages;
+  array_unshift($form['#after_build'], 'entityform_ctools_form_entityform_edit_form_after_build');
+  return $form;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function entityform_ctools_form_entityform_type_form_alter(&$form, &$form_state, $form_id) {
+  $type = $form['#entityform_type']->type;
+  $default_settings = array(
+    'visibility' => ENTITYFORM_CTOOLS_AJAX_DISABLED,
+    'paths' => '',
+  );
+  $settings = variable_get('entityform_ctools_ajax_settings_' . $type, $default_settings);
+
+  $form['entityform_ctools'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'AJAX',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+    '#weight' => 999,
+    '#tree' => TRUE,
+  );
+
+  $options = array(
+    ENTITYFORM_CTOOLS_AJAX_DISABLED => t('Disable'),
+    ENTITYFORM_CTOOLS_AJAX_LISTED => t('Only the listed pages'),
+    ENTITYFORM_CTOOLS_AJAX_NOTLISTED => t('All pages except those listed'),
+    ENTITYFORM_CTOOLS_AJAX_OWN => t('Only on default form page'),
+  );
+
+  $title = t('Pages or PHP code');
+  $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+    '%blog' => 'blog',
+    '%blog-wildcard' => 'blog/*',
+    '%front' => '<front>'
+  ));
+
+  $form['entityform_ctools']['visibility'] = array(
+    '#type' => 'radios',
+    '#title' => t('Make this form AJAX on specific pages'),
+    '#options' => $options,
+    '#default_value' => $settings['visibility'],
+  );
+
+  $form['entityform_ctools']['paths'] = array(
+    '#type' => 'textarea',
+    '#title' => '<span class="element-invisible">' . $title . '</span>',
+    '#default_value' => $settings['paths'],
+    '#description' => $description,
+  );
+
+  $form['#submit'][] = 'entityform_ctools_form_entityform_type_form_submit';
+}
+
+/**
+ * Submit handler for entityform settings form for saving custom settings.
+ */
+function entityform_ctools_form_entityform_type_form_submit(&$form, &$form_state) {
+  $type = $form['#entityform_type']->type;
+  variable_set('entityform_ctools_ajax_settings_' . $type, $form_state['values']['entityform_ctools']);
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function entityform_ctools_form_entityform_edit_form_alter(&$form, &$form_state, $form_id) {
+  $type = $form['#entity']->type;
+  $entityform_object = entityform_type_load($type);
+  $default_settings = array(
+    'visibility' => ENTITYFORM_CTOOLS_AJAX_DISABLED,
+    'paths' => '',
+  );
+  $settings = variable_get('entityform_ctools_ajax_settings_' . $type, $default_settings);
+
+  switch ($settings['visibility']) {
+    case ENTITYFORM_CTOOLS_AJAX_DISABLED:
+      $page_match = FALSE;
+      break;
+
+    case ENTITYFORM_CTOOLS_AJAX_NOTLISTED:
+    case ENTITYFORM_CTOOLS_AJAX_LISTED:
+      if ($settings['paths']) {
+        $paths = drupal_strtolower($settings['paths']);
+        $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+        $page_match = drupal_match_path($current_path, $paths);
+        if ($current_path != $_GET['q']) {
+          $page_match = $page_match || drupal_match_path($_GET['q'], $paths);
+        }
+        if ($settings['visibility'] == ENTITYFORM_CTOOLS_AJAX_NOTLISTED) {
+          $page_match = !$page_match;
+        }
+      }
+      else {
+        $page_match = FALSE;
+      }
+      break;
+
+    case ENTITYFORM_CTOOLS_AJAX_OWN:
+      $paths = $entityform_object->paths['submit']['source'];
+      if (!empty($entityform_object->paths['submit']['alias'])) {
+        $paths .= "\n\r" . $entityform_object->paths['submit']['alias'];
+      }
+      $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+      $page_match = drupal_match_path($current_path, $paths);
+      break;
+
+    default:
+      $page_match = FALSE;
+      break;
+  }
+
+  if ($page_match) {
+    array_unshift($form['#after_build'], 'entityform_ctools_form_entityform_edit_form_after_build');
+  }
+}
+
+/**
+ * After build callback.
+ */
+function entityform_ctools_form_entityform_edit_form_after_build($form, &$form_state) {
+  dpm('test');
+  module_load_include('inc', 'entityform', 'entityform.admin');
+  drupal_add_library('system', 'jquery.form');
+  drupal_add_library('system', 'drupal.form');
+  drupal_add_library('system', 'drupal.ajax');
+  drupal_add_library('system', 'drupal.progress');
+  $type = $form['#entity']->type;
+  $entityform_type = entityform_type_load($type);
+  $form_state_new = array(
+    'ajax' => TRUE,
+    'inline_ajax' => TRUE,
+    'rebuild' => FALSE,
+    'cache' => TRUE,
+    'form_id' => $type . '_entityform_edit_form',
+    'build_info' => array(
+      'args' => array(
+        entityform_empty_load($type),
+        'submit',
+        'page'
+      ),
+    ),
+  );
+  $form_state = array_merge($form_state, $form_state_new);
+  $action_path = 'entityform_ctools/ajax';
+  $form['#action'] = $action_path;
+  $form['actions']['submit']['#ajax'] = array('path' => $action_path);
+  $form['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
+  // We must attach intro again, because after AJAX request this element for
+  // some reason is missing. This is restore it.
+  if (!empty($entityform_type->data['instruction_pre'])) {
+    $form['intro'] = array(
+      '#type' => 'markup',
+      '#markup' => "<div class='pre-instructions' >" . _entityform_format_text($entityform_type->data['instruction_pre'], array('entityform_type' => $entityform_type)) . "</div>",
+      '#weight' => -100,
+    );
+  }
+  $form_id = $type . '_entityform_edit_form';
+  $messages = '<div id="' . $form_id . '-messages"></div>';
+  $form['#prefix'] = $messages;
+  return $form;
 }
