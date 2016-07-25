@@ -126,6 +126,7 @@ function entityform_ctools_page_callback($entityform_name, $js = NULL) {
   $form_state = array(
     'title' => $title,
     'ajax' => TRUE,
+    'is_modal' => TRUE,
     'build_info' => array(
       'args' => array(
         entityform_empty_load($entityform_name),
@@ -192,7 +193,6 @@ function entityform_ctools_get_ajax_form($entityform_name) {
   $form_id = $entityform_name . '_entityform_edit_form';
   $form_state = array(
     'ajax' => TRUE,
-    'inline_ajax' => TRUE,
     'rebuild' => FALSE,
     'cache' => TRUE,
     'build_info' => array(
@@ -334,7 +334,6 @@ function entityform_ctools_form_entityform_edit_form_alter(&$form, &$form_state,
  * After build callback.
  */
 function entityform_ctools_form_entityform_edit_form_after_build($form, &$form_state) {
-  dpm('test');
   module_load_include('inc', 'entityform', 'entityform.admin');
   drupal_add_library('system', 'jquery.form');
   drupal_add_library('system', 'drupal.form');
@@ -344,7 +343,6 @@ function entityform_ctools_form_entityform_edit_form_after_build($form, &$form_s
   $entityform_type = entityform_type_load($type);
   $form_state_new = array(
     'ajax' => TRUE,
-    'inline_ajax' => TRUE,
     'rebuild' => FALSE,
     'cache' => TRUE,
     'form_id' => $type . '_entityform_edit_form',
