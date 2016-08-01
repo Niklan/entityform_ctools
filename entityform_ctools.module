@@ -206,7 +206,7 @@ function entityform_ctools_get_ajax_form($entityform_name) {
 
   $form = drupal_build_form($form_id, $form_state);
   $action_path = 'entityform_ctools/ajax';
-  $form['#action'] = $action_path;
+  $form['#action'] = '/' . $action_path;
   $form['actions']['submit']['#ajax'] = array('path' => $action_path);
   $form['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
   $form_id = $entityform_name . '_entityform_edit_form';
