@@ -212,7 +212,7 @@ function entityform_ctools_get_ajax_form($entityform_name) {
   $form_id = $entityform_name . '_entityform_edit_form';
   $messages = '<div id="' . $form_id . '-messages"></div>';
   $form['#prefix'] = $messages;
-  array_unshift($form['#after_build'], 'entityform_ctools_form_entityform_edit_form_after_build');
+  $form['#after_build'][] = 'entityform_ctools_form_entityform_edit_form_after_build';
   return $form;
 }
 
@@ -356,7 +356,7 @@ function entityform_ctools_form_entityform_edit_form_after_build($form, &$form_s
   );
   $form_state = array_merge($form_state, $form_state_new);
   $action_path = 'entityform_ctools/ajax';
-  $form['#action'] = $action_path;
+  $form['#action'] = '/' . $action_path;
   $form['actions']['submit']['#ajax'] = array('path' => $action_path);
   $form['actions']['submit']['#attributes']['class'][] = 'use-ajax-submit';
   // We must attach intro again, because after AJAX request this element for
@@ -368,8 +368,10 @@ function entityform_ctools_form_entityform_edit_form_after_build($form, &$form_s
       '#weight' => -100,
     );
   }
-  $form_id = $type . '_entityform_edit_form';
-  $messages = '<div id="' . $form_id . '-messages"></div>';
-  $form['#prefix'] = $messages;
+  if (!$form_state['process_input']) {
+    $form_id = $type . '_entityform_edit_form';
+    $messages = '<div id="' . $form_id . '-messages"></div>';
+    $form['#prefix'] = $messages;
+  }
   return $form;
 }
