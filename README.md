@@ -80,9 +80,11 @@ You will get something like this.
 You can alter AJAX commands for extra staff.
 
 ~~~php
-function hook_entityform_ctools_FORM_ID_executed_commands(&$commands, $form_state) {
+function hook_entityform_ctools_FORM_ID_commands_alter(&$commands, $form_state) {
   // Close modal window after successful submission.
-  $commands[] = ctools_modal_command_dismiss();
+  if ($form_state['executed']) {
+    $commands[] = ctools_modal_command_dismiss();
+  }
 }
 ~~~
 
