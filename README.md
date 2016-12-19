@@ -104,3 +104,14 @@ Want to make form submission via AJAX on default form page, or, maybe, you print
 Go to entityform settings, now you will see new extra tabs called 'AJAX', next is like block visibility settings, you just enter paths whatever you want to make form AJAX submit.
 
 ![Example 6 image](http://i.imgur.com/wzfQ3lW.png)
+
+
+## Example 7: Use it like text filter.
+
+You can place entityform to page with AJAX submission with enabling Entityfrom Ctools embed filter.
+
+~~~
+[entityform:ENTITYFORM_NAME]
+~~~
+
+This code above in text, where enabled this filter, will be converted to AJAX Entityform.
