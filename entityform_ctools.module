@@ -10,11 +10,12 @@
  * Email: hello@niklan.net
  */
 
+require_once 'entityform_ctools.filter.inc';
+
 define('ENTITYFORM_CTOOLS_AJAX_DISABLED', -1);
 define('ENTITYFORM_CTOOLS_AJAX_NOTLISTED', 0);
 define('ENTITYFORM_CTOOLS_AJAX_LISTED', 1);
 define('ENTITYFORM_CTOOLS_AJAX_OWN', 2);
-
 
 /**
  * Implements hook_menu().
@@ -59,16 +60,7 @@ function _entityform_ctools_include_modal() {
     $style = array(
       'entityform' => array(
         'modalSize' => array(
-          // fixed or scale
-          'type' => 'fixed',
-          // Npx or 0-1 as percentage, where 0.1 - 10%
-          'width' => '320px',
-          // Npx or 0-1 as percentage.
-          'height' => 'auto',
-          'addWidth' => '0',
-          'addHeight' => '0',
-          'contentRight' => '25',
-          'contentBottom' => '0',
+
         ),
         'modalTheme' => 'entityform_ctools_modal',
         'throbberTheme' => 'entityform_ctools_throbber',
@@ -79,7 +71,7 @@ function _entityform_ctools_include_modal() {
         'animation' => 'show',
         // slow, medium or fast
         'animationSpeed' => 'fast',
-        'closeText' => 'Закрыть ❌',
+        'closeText' => '',
         'closeImage' => '',
         // @TODO translate
         'loadingText' => 'Секундочку, форма загружается…',
@@ -134,6 +126,7 @@ function entityform_ctools_page_callback($entityform_name, $js = NULL) {
         'embedded'
       ),
     ),
+    'query_parameters' => drupal_get_query_parameters(),
   );
 
   $commands = ctools_modal_form_wrapper($entityform_name . '_entityform_edit_form', $form_state);
