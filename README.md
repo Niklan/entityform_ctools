@@ -111,7 +111,7 @@ Go to entityform settings, now you will see new extra tabs called 'AJAX', next i
 You can place entityform to page with AJAX submission with enabling Entityfrom Ctools embed filter.
 
 ~~~
-[entityform:ENTITYFORM_NAME]
+[entityform_ctools:ENTITYFORM_NAME]
 ~~~
 
 This code above in text, where enabled this filter, will be converted to AJAX Entityform.
