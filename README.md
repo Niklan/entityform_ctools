@@ -75,12 +75,15 @@ You will get something like this.
 
 ![Example 3 image](http://i.imgur.com/TwRmcp8.png)
 
-## Example 4: hook_entityform_ctools_FORM_ID_executed_commands()
+## Example 4: hook_entityform_ctools_ENTITYFORM_NAME_commands_alter()
 
 You can alter AJAX commands for extra staff.
 
+ENTITYFORM_NAME must be replaced by machine name of the entityform, **not** the
+FORM ID.
+
 ~~~php
-function hook_entityform_ctools_FORM_ID_commands_alter(&$commands, $form_state) {
+function hook_entityform_ctools_ENTITYFORM_NAME_commands_alter(&$commands, $form_state) {
   // Close modal window after successful submission.
   if ($form_state['executed']) {
     $commands[] = ctools_modal_command_dismiss();
